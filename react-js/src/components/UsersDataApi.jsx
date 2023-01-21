@@ -1,14 +1,25 @@
-import React, {useEffect, useState}  from "react";
+import React, {useEffect, useState, useRef}  from "react";
 
 
 var pagenum = 1;
 
 const UseEffectAPI = () => {
+    const inputref = useRef(null);
     const [users, setUser] = useState([]);
     const [page, setpage] = useState([1]);
+    const [limit, setlimit] = useState([1]);
         useEffect(() => {
          getUsers();   
         },[pagenum]);
+        useEffect(() => {
+            handleLimit()
+        },[limit]);
+        const handleLimit = () => {
+            console.log(limit);
+            console.log('inputref.current.value',inputref.current.value);
+            setlimit(inputref.current.value);
+            console.log(limit);
+        }
         const prevpage = () => {
             if (pagenum != 1 ) {
                 pagenum--;
@@ -17,17 +28,17 @@ const UseEffectAPI = () => {
             }
         }
         const nextpage = () => {
-            if (pagenum != 10 ) {
+            if (pagenum != 5 ) {
                 pagenum++;
                 setpage(pagenum);
                 console.log(pagenum);
             }
         }
     const getUsers = async () => {
-        const response = await fetch('https://jsonplaceholder.typicode.com/users/'+pagenum);
+        const response = await fetch('https://jsonplaceholder.typicode.com/users/?_limit='+limit+'&_page='+pagenum);
         
         setUser(await response.json());
-        console.log(response.json());
+        // console.log(response.json());
     }
 
 
@@ -35,7 +46,7 @@ const UseEffectAPI = () => {
     return(
         <>
         <h1> List of All users</h1>
-        <table class="table">
+        <table className="table">
   <thead>
     <tr>
       <th scope="col">#id</th>
@@ -44,23 +55,28 @@ const UseEffectAPI = () => {
       <th scope="col">Email</th>
     </tr>
   </thead>
-  <tbody>
-    {    
+  <tbody>{
+    users.map((item, i) => {
+        // console.log(item);
+        return(
         <tr>
-        <th scope="row">{users.id}</th>
-        <td>{users.name}</td>
-        <td>{users.username}</td>
-        <td>{users.email}</td>
+        <th scope="row">{item.id}</th>
+        <td>{item.username}</td>
+        <td>{item.email}</td>
+        <td>a</td>
         </tr>
-        
+        );
     }
-    <div>
-    <button onClick={prevpage}>prev record</button>
-    <p>{page} page number</p>
-    <button onClick={nextpage}>next record</button>
-    </div>
+    )
+    }
+
   </tbody>
 </table>
+    <button onClick={prevpage} id="prev">prev record</button>
+    <p>{page} page number</p>
+    <input type="text" id="limit" onChange={handleLimit} name="limit" ref={inputref} />
+    <button onClick={handleLimit}  id="limitbutton" >click me!</button>
+    <button onClick={nextpage} id="next">next record</button>
         </>
     );
 }
